@@ -1,0 +1,48 @@
+# Node modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build output
+dist/
+build/
+.vite/
+
+# Local env files
+.env*
+!.env.example
+
+# Mac 系统文件
+.DS_Store
+
+# VSCode 项目配置
+.vscode/
+*.code-workspace
+
+# 其它编辑器配置
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# 本地调试和临时文件
+*.local
+*.log
+*.tmp
+*.swp
+*.bak
+
+# 包管理锁文件（如不用 pnpm 可以去掉）
+pnpm-lock.yaml
+
+# 静态分析结果
+coverage/
+*.lcov
+
+# 生产环境下不需要的测试文件
+test.xml
+
+# Optional: 你可以根据需要自定义下面这些
+# public/
+# .cache/
