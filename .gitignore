@@ -40,8 +40,6 @@ pnpm-lock.yaml
 coverage/
 *.lcov
 
-# 生产环境下不需要的测试文件
-test.xml
 
 # Optional: 你可以根据需要自定义下面这些
 # public/

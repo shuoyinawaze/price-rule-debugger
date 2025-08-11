@@ -28,7 +28,13 @@ function parseXmlRules(text) {
   if (errorNode) {
     throw new Error('Invalid XML file');
   }
-  const ruleNodes = Array.from(doc.getElementsByTagName('rule'));
+  
+  // Check if this is an API response with nested structure
+  const priceRulesNode = doc.querySelector('priceRules');
+  const ruleNodes = priceRulesNode 
+    ? Array.from(priceRulesNode.getElementsByTagName('rule'))
+    : Array.from(doc.getElementsByTagName('rule'));
+    
   return ruleNodes.map((node, idx) => {
     const getTag = (tag) => {
       const el = node.getElementsByTagName(tag)[0];
@@ -54,6 +60,38 @@ function parseXmlRules(text) {
       colour: COLOURS[idx % COLOURS.length],
     };
   });
+}
+
+/**
+ * Fetch price rules from API endpoint
+ * @param {string} accommodationCode The accommodation code
+ * @param {Object} payload The request payload
+ * @returns {Promise<Array>} Array of rule objects
+ */
+async function fetchPriceRulesFromAPI(accommodationCode, payload) {
+  const apiKey = import.meta.env.VITE_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error('API key not configured. Please set VITE_API_KEY in your .env file.');
+  }
+
+  // Use the proxy endpoint instead of direct API call to avoid CORS issues
+  const response = await fetch(
+    `/api/products/${accommodationCode}?salesmarket=999&season=${payload.season}&showdescriptions=true&sections=pricerules`,
+    {
+    method: 'GET', // Changed to GET since query parameters are in URL
+    headers: {
+      'Content-Type': 'application/json',
+      'Key': apiKey
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+  }
+  
+  const xmlText = await response.text();
+  return parseXmlRules(xmlText);
 }
 
 /**
@@ -296,6 +334,80 @@ function Timeline({
 
 
 /**
+ * API Configuration component for setting up API endpoint and making requests
+ */
+function APIConfiguration({ onRulesLoaded }) {
+  const [accommodationCode, setAccommodationCode] = useState('');
+  const [season, setSeason] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleFetchFromAPI = async () => {
+    if (!accommodationCode || !season) {
+      alert('Please fill in all fields: accommodation code and season');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Payload structure for the API
+      const payload = {
+        salesmarket: 999,
+        season: parseInt(season, 10),
+        showdescriptions: true,
+        sections: 'pricerules'
+      };
+
+      const rules = await fetchPriceRulesFromAPI(accommodationCode, payload);
+      onRulesLoaded(rules);
+    } catch (error) {
+      console.error('Failed to fetch from API:', error);
+      alert(`Failed to fetch price rules from API: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="api-configuration">
+      <h3>Fetch from API</h3>
+      <div className="api-form">
+        <div className="api-form-row">
+          <label>
+            Accommodation Code:
+            <input
+              type="text"
+              value={accommodationCode}
+              onChange={(e) => setAccommodationCode(e.target.value)}
+              placeholder="e.g., FRA278"
+              className="api-input"
+            />
+          </label>
+          <label>
+            Season:
+            <input
+              type="number"
+              value={season}
+              onChange={(e) => setSeason(e.target.value)}
+              placeholder="e.g., 2026"
+              className="api-input"
+              min="2020"
+              max="2030"
+            />
+          </label>
+          <button
+            onClick={handleFetchFromAPI}
+            disabled={isLoading}
+            className="api-fetch-button"
+          >
+            {isLoading ? 'Fetching...' : 'Fetch Rules'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
  * BookingSelector allows users to test arbitrary bookings against the
  * uploaded rules. Users can dynamically add or remove test cases
  * consisting of a start date and a length of stay. Results for each
@@ -443,6 +555,11 @@ export default function App() {
     }
   };
 
+  // Handle rules loaded from API
+  const handleRulesLoaded = (loadedRules) => {
+    setRules(loadedRules);
+  };
+
   // Determine earliest and latest years covered by rules to provide guidance in the UI
   const ruleYears = useMemo(() => {
     if (!rules || rules.length === 0) return null;
@@ -461,12 +578,19 @@ export default function App() {
     <div className="container">
       <h1>Price Rule Debugger</h1>
       <p>
-        Upload your price rule file (XML) to visualise how the rules cover the calendar and test
+        Upload your price rule file (XML) or fetch rules from API to visualise how the rules cover the calendar and test
         bookings against them.
       </p>
+      
+      {/* API Configuration Section */}
+      <APIConfiguration onRulesLoaded={handleRulesLoaded} />
+      
+      {/* File Upload Section */}
       <div className="upload-section">
+        <h3>Or upload XML file</h3>
         <input type="file" accept=".xml" onChange={handleFileChange} />
       </div>
+      
       {rules.length > 0 && (
         <>
           <div className="year-selector">
