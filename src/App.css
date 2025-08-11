@@ -270,31 +270,148 @@
 .rule-bar-container {
   position: relative;
   flex: 1;
-  min-height: 26px;
-  background: repeating-linear-gradient(
-    to right,
-    #f7f7f7 0px,
-    #f7f7f7 10px,
-    #f0f0f0 10px,
-    #f0f0f0 20px
-  );
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  overflow: hidden;
+  height: 20px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
 }
 
 .rule-bar {
   position: absolute;
-  top: 2px;
-  bottom: 2px;
-  border-radius: 4px;
+  height: 100%;
+  border-radius: 2px;
+  transition: opacity 0.2s ease;
+}
+
+.rule-bar.clickable-rule {
+  cursor: pointer;
+}
+
+.rule-bar.clickable-rule:hover {
   opacity: 0.8;
-  transition: box-shadow 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .rule-bar.highlight {
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.6);
-  opacity: 1;
+  box-shadow: 0 0 0 2px #ff4444;
+  z-index: 1;
+}
+
+.clickable-rule {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.rule-info.clickable-rule:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+  border-radius: 4px;
+}
+
+/* XML Popup Styles */
+.xml-popup-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.xml-popup-modal {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  max-width: 800px;
+  max-height: 80vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.xml-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f8f9fa;
+  border-radius: 8px 8px 0 0;
+}
+
+.xml-popup-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.xml-popup-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.copy-button {
+  padding: 6px 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+}
+
+.copy-button:hover {
+  background-color: #0056b3;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.close-button:hover {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.xml-popup-content {
+  flex: 1;
+  overflow: auto;
+  padding: 0;
+}
+
+.xml-content {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  background-color: #f8f8f8;
+  overflow: auto;
+  white-space: pre;
+  color: #333;
+}
+
+.xml-content code {
+  background: none;
+  padding: 0;
+  font-family: inherit;
 }
 
 .booking-creation-line {
@@ -527,5 +644,29 @@
   .booking-creation-line {
     /* Adjust positioning for smaller screens */
     left: calc(40% + var(--booking-position, 0%) * 60%) !important;
+  }
+  
+  .xml-popup-backdrop {
+    padding: 10px;
+  }
+  
+  .xml-popup-modal {
+    max-height: 90vh;
+  }
+  
+  .xml-popup-header {
+    padding: 12px 16px;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  
+  .xml-popup-actions {
+    align-self: flex-end;
+  }
+  
+  .xml-content {
+    font-size: 10px;
+    padding: 15px;
   }
 }

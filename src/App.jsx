@@ -42,6 +42,11 @@ function parseXmlRules(text) {
     };
     const from = getTag('from');
     const to = getTag('to');
+    
+    // Serialize the original XML node for this rule
+    const serializer = new XMLSerializer();
+    const originalXml = serializer.serializeToString(node);
+    
     return {
       id: idx + 1,
       from,
@@ -58,6 +63,7 @@ function parseXmlRules(text) {
         ? parseInt(getTag('maxDaysToArrival'), 10)
         : null,
       colour: COLOURS[idx % COLOURS.length],
+      originalXml: originalXml // Store the original XML
     };
   });
 }
@@ -136,11 +142,83 @@ function isBookingAllowedByRule(rule, startDate, length, bookingCreationDate) {
 }
 
 
+/**
+ * XML Popup Modal component to display the original XML for a rule
+ */
+function XMLPopup({ rule, onClose }) {
+  if (!rule) return null;
+
+  // Format XML with proper indentation
+  const formatXml = (xml) => {
+    const PADDING = ' '.repeat(2);
+    const reg = /(>)(<)(\/*)/g;
+    let formatted = xml.replace(reg, '$1\r\n$2$3');
+    let pad = 0;
+    return formatted.split('\r\n').map(line => {
+      let indent = 0;
+      if (line.match(/.+<\/\w[^>]*>$/)) {
+        indent = 0;
+      } else if (line.match(/^<\/\w/)) {
+        if (pad !== 0) {
+          pad -= 1;
+        }
+      } else if (line.match(/^<\w[^>]*[^\/]>.*$/)) {
+        indent = 1;
+      } else {
+        indent = 0;
+      }
+      
+      const padding = PADDING.repeat(pad);
+      pad += indent;
+      return padding + line;
+    }).join('\n');
+  };
+
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  const handleCopyToClipboard = () => {
+    navigator.clipboard.writeText(rule.originalXml).then(() => {
+      // You could add a toast notification here
+      alert('XML copied to clipboard!');
+    }).catch(err => {
+      console.error('Failed to copy XML:', err);
+    });
+  };
+
+  return (
+    <div className="xml-popup-backdrop" onClick={handleBackdropClick}>
+      <div className="xml-popup-modal">
+        <div className="xml-popup-header">
+          <h3>Rule {rule.id} - Original XML</h3>
+          <div className="xml-popup-actions">
+            <button onClick={handleCopyToClipboard} className="copy-button">
+              Copy XML
+            </button>
+            <button onClick={onClose} className="close-button">
+              ×
+            </button>
+          </div>
+        </div>
+        <div className="xml-popup-content">
+          <pre className="xml-content">
+            <code>{formatXml(rule.originalXml)}</code>
+          </pre>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Timeline({
   rules, year, highlightedRuleIds, bookingCreationDate,
   viewMode, selectedMonth, onMonthClick, onNavigateMonth, onBackToYear
 }) {
   const isYearView = viewMode === 'year';
+  const [selectedRule, setSelectedRule] = useState(null); // For XML popup
 
   // 1. 用 ref 拿 info 和 bar 宽度
   const infoRef = useRef(null);
@@ -301,7 +379,11 @@ function Timeline({
           const highlight = highlightedRuleIds && highlightedRuleIds.includes(rule.id);
           return (
             <div className="rule-row" key={rule.id}>
-              <div className="rule-info">
+              <div 
+                className="rule-info clickable-rule"
+                onClick={() => setSelectedRule(rule)}
+                title="Click to view original XML"
+              >
                 <div className="rule-title">Rule {rule.id}</div>
                 <div className="rule-dates">
                   {format(parseISO(rule.from), 'yyyy-MM-dd')} – {format(parseISO(rule.to), 'yyyy-MM-dd')}
@@ -315,19 +397,28 @@ function Timeline({
               </div>
               <div className="rule-bar-container">
                 <div
-                  className={`rule-bar ${highlight ? 'highlight' : ''}`}
+                  className={`rule-bar ${highlight ? 'highlight' : ''} clickable-rule`}
                   style={{
                     left: `${barLeft}%`,
                     width: `${barWidthPercent}%`,
                     backgroundColor: rule.colour,
                   }}
-                  title={`Rule ${rule.id}`}
+                  title={`Rule ${rule.id} - Click to view XML`}
+                  onClick={() => setSelectedRule(rule)}
                 ></div>
               </div>
             </div>
           );
         })}
       </div>
+      
+      {/* XML Popup Modal */}
+      {selectedRule && (
+        <XMLPopup 
+          rule={selectedRule} 
+          onClose={() => setSelectedRule(null)} 
+        />
+      )}
     </div>
   );
 }
