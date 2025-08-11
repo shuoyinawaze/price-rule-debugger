@@ -640,6 +640,20 @@ export default function App() {
       const text = await file.text();
       const parsed = parseXmlRules(text);
       setRules(parsed);
+      
+      // Set year to the minimum year from the uploaded rules
+      if (parsed && parsed.length > 0) {
+        let minYear = Infinity;
+        parsed.forEach((rule) => {
+          const fromYear = parseISO(rule.from).getFullYear();
+          const toYear = parseISO(rule.to).getFullYear();
+          if (fromYear < minYear) minYear = fromYear;
+          if (toYear < minYear) minYear = toYear;
+        });
+        if (minYear !== Infinity) {
+          setYear(minYear);
+        }
+      }
     } catch (err) {
       console.error(err);
       alert('Failed to parse the uploaded file. Please ensure it is valid XML containing price rules.');
@@ -649,6 +663,20 @@ export default function App() {
   // Handle rules loaded from API
   const handleRulesLoaded = (loadedRules) => {
     setRules(loadedRules);
+    
+    // Set year to the minimum year from the loaded rules
+    if (loadedRules && loadedRules.length > 0) {
+      let minYear = Infinity;
+      loadedRules.forEach((rule) => {
+        const fromYear = parseISO(rule.from).getFullYear();
+        const toYear = parseISO(rule.to).getFullYear();
+        if (fromYear < minYear) minYear = fromYear;
+        if (toYear < minYear) minYear = toYear;
+      });
+      if (minYear !== Infinity) {
+        setYear(minYear);
+      }
+    }
   };
 
   // Determine earliest and latest years covered by rules to provide guidance in the UI
