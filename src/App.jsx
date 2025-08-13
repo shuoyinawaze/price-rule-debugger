@@ -75,22 +75,16 @@ function parseXmlRules(text) {
  * @returns {Promise<Array>} Array of rule objects
  */
 async function fetchPriceRulesFromAPI(accommodationCode, payload) {
-  const apiKey = import.meta.env.VITE_API_KEY;
-  
-  if (!apiKey) {
-    throw new Error('API key not configured. Please set VITE_API_KEY in your .env file.');
-  }
-
-  // Use the proxy endpoint instead of direct API call to avoid CORS issues
+  // Use Vercel API route instead of direct API call to avoid CORS issues
   const response = await fetch(
-    `/api/products/${accommodationCode}?salesmarket=999&season=${payload.season}&showdescriptions=true&sections=pricerules`,
+    `/api/price-rules/${accommodationCode}?season=${payload.season}&salesmarket=${payload.salesmarket || 999}`,
     {
-    method: 'GET', // Changed to GET since query parameters are in URL
-    headers: {
-      'Content-Type': 'application/json',
-      'Key': apiKey
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
     }
-  });
+  );
   
   if (!response.ok) {
     throw new Error(`API request failed: ${response.status} ${response.statusText}`);
@@ -106,23 +100,13 @@ async function fetchPriceRulesFromAPI(accommodationCode, payload) {
  * @returns {Promise<Object>} Saleability data object
  */
 async function fetchSaleabilityFromAPI(propertyCode) {
-  const saleabilityApiKey = import.meta.env.VITE_SALEABILITY_API_KEY;
-  
-  if (!saleabilityApiKey) {
-    throw new Error('Saleability API key not configured. Please set VITE_SALEABILITY_API_KEY in your .env file.');
-  }
-
-  // Use the proxy endpoint instead of direct API call to avoid CORS issues
+  // Use Vercel API route instead of direct API call to avoid CORS issues
   const response = await fetch(
-    `/saleability/${propertyCode}`,
+    `/api/saleability/${propertyCode}`,
     {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
-        'x-awaze-client': 'price-rule-debugger',
-        'x-awaze-client-env': 'prod',
-        'x-api-key': saleabilityApiKey,
-        'x-apex-expose-novasol-saleability': 'true'
+        'Content-Type': 'application/json'
       }
     }
   );
