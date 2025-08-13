@@ -1,36 +1,228 @@
 /* Styles specific to the Price Rule Debugger application. */
 
+/* Global theme variables */
+:root {
+  --transition-duration: 0.3s;
+}
+
+/* Light theme variables */
+.light-theme {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
+  --text-primary: #000000;
+  --text-secondary: #333333;
+  --text-tertiary: #666666;
+  --accent-primary: #000000;
+  --accent-secondary: #333333;
+  --accent-tertiary: #666666;
+  --border-primary: #dee2e6;
+  --border-secondary: #adb5bd;
+  --shadow-color: rgba(0, 0, 0, 0.2);
+  --highlight-color: #007bff;
+  --error-color: #dc3545;
+  --success-color: #28a745;
+  --maxdays-color: #fd7e14; /* Orange for light mode */
+  --maxdays-bg: rgba(253, 126, 20, 0.3); /* Orange background for light mode */
+  --max-days-shadow-bg: rgba(253, 126, 20, 0.3); /* Orange background for light mode */
+  --transition-duration: 0.3s;
+}
+
+/* Dark theme variables */
+.dark-theme {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-tertiary: #404040;
+  --text-primary: #e0e0e0;
+  --text-secondary: #cccccc;
+  --text-tertiary: #aaaaaa;
+  --accent-primary: #00ff88;
+  --accent-secondary: #66ffaa;
+  --accent-tertiary: #33ff99;
+  --border-primary: #00ff88;
+  --border-secondary: #555555;
+  --shadow-color: rgba(0, 255, 136, 0.2);
+  --highlight-color: #00ff88;
+  --error-color: #ff6666;
+  --success-color: #00ff88;
+  --max-days-shadow-bg: repeating-linear-gradient(
+    45deg,
+    rgba(0, 255, 136, 0.2),
+    rgba(0, 255, 136, 0.2) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+
+/* Global styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color var(--transition-duration), color var(--transition-duration);
+}
+
+/* Header section with theme toggle */
+.header-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.header-section h1 {
+  color: var(--accent-primary);
+  text-align: center;
+  margin: 0;
+  text-shadow: 0 0 10px var(--shadow-color);
+  transition: color var(--transition-duration);
+}
+
+.theme-toggle {
+  background: var(--accent-primary);
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-duration);
+  position: absolute;
+  right: 0;
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.theme-toggle:hover {
+  background: var(--accent-secondary);
+  transform: scale(1.1);
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
+}
+
+/* Main container */
 .container {
   max-width: 100%;
   margin: 0 auto;
   padding: 10px;
   box-sizing: border-box;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  transition: all var(--transition-duration);
 }
 
+.container p {
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 30px;
+  transition: color var(--transition-duration);
+}
+
+/* File input styling */
 .upload-section {
   margin-bottom: 20px;
+  background-color: var(--bg-secondary);
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid var(--border-primary);
+  transition: all var(--transition-duration);
 }
 
 .upload-section h3 {
   margin-top: 0;
   margin-bottom: 10px;
   font-size: 1.1rem;
-  color: #333;
+  color: var(--accent-primary);
+  transition: color var(--transition-duration);
+}
+
+.upload-section input[type="file"] {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all var(--transition-duration);
+}
+
+.upload-section input[type="file"]::-webkit-file-upload-button {
+  background-color: var(--accent-primary);
+  color: var(--bg-primary);
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  margin-right: 10px;
+  cursor: pointer;
+  transition: background-color var(--transition-duration);
+}
+
+.upload-section input[type="file"]::-webkit-file-upload-button:hover {
+  background-color: var(--accent-secondary);
+}
+
+/* Add booking test button */
+.booking-selector button:last-child {
+  background-color: var(--accent-primary);
+  color: var(--bg-primary);
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color var(--transition-duration);
+  margin-top: 10px;
+}
+
+.booking-selector button:last-child:hover {
+  background-color: var(--accent-secondary);
+}
+
+.upload-section {
+  margin-bottom: 20px;
+  background-color: var(--bg-secondary);
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid var(--border-primary);
+  transition: all var(--transition-duration);
+}
+
+.upload-section h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  color: var(--accent-primary);
+  transition: color var(--transition-duration);
 }
 
 .api-configuration {
   margin-bottom: 25px;
   padding: 15px;
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
   border-radius: 6px;
+  transition: all var(--transition-duration);
 }
 
 .api-configuration h3 {
   margin-top: 0;
   margin-bottom: 15px;
-  color: #333;
+  color: var(--accent-primary);
   font-size: 1.1rem;
+  transition: color var(--transition-duration);
 }
 
 .api-form {
@@ -53,45 +245,95 @@
   font-size: 0.9rem;
   font-weight: 500;
   white-space: nowrap;
+  color: var(--text-primary);
+  transition: color var(--transition-duration);
 }
 
 .api-input {
   padding: 6px 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-primary);
   border-radius: 4px;
   font-size: 0.9rem;
   min-width: 120px;
   max-width: 200px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: all var(--transition-duration);
+}
+
+.api-input:focus {
+  outline: none;
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 0 2px var(--shadow-color);
+}
+
+/* Ensure select dropdowns have consistent styling */
+.api-input select,
+select.api-input {
+  padding: 6px 24px 6px 8px; /* More right padding for custom arrow */
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  min-width: 120px;
+  max-width: 200px;
+  background-color: var(--bg-primary);
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px 16px;
+  color: var(--text-primary);
+  transition: all var(--transition-duration);
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.api-input select:focus,
+select.api-input:focus {
+  outline: none;
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 0 2px var(--shadow-color);
 }
 
 .api-input-wide {
   padding: 6px 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-primary);
   border-radius: 4px;
   font-size: 0.9rem;
   min-width: 300px;
   flex: 1;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: all var(--transition-duration);
+}
+
+.api-input-wide:focus {
+  outline: none;
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 0 2px var(--shadow-color);
 }
 
 .api-fetch-button {
   padding: 8px 16px;
-  background-color: #28a745;
-  color: white;
+  background-color: var(--accent-primary);
+  color: var(--bg-primary);
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 500;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--transition-duration);
 }
 
 .api-fetch-button:hover:not(:disabled) {
-  background-color: #218838;
+  background-color: var(--accent-secondary);
 }
 
 .api-fetch-button:disabled {
-  background-color: #6c757d;
+  background-color: var(--text-secondary);
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .year-selector {
@@ -101,26 +343,42 @@
   gap: 10px;
   font-size: 0.95rem;
   flex-wrap: wrap;
+  color: var(--text-primary);
+  transition: color var(--transition-duration);
 }
 
 .year-selector input[type='number'] {
   width: 100px;
   min-width: 80px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  padding: 4px 8px;
+  transition: all var(--transition-duration);
+}
+
+.year-selector input[type='number']:focus {
+  outline: none;
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 0 2px var(--shadow-color);
 }
 
 .year-hint {
   font-size: 0.85rem;
-  color: #555;
+  color: var(--text-secondary);
+  transition: color var(--transition-duration);
 }
 
 .timeline-wrapper {
-  border: 1px solid #ddd;
-  background-color: #fff;
+  border: 1px solid var(--border-primary);
+  background-color: var(--bg-secondary);
   border-radius: 4px;
   overflow-x: auto;
   padding-bottom: 10px;
   position: relative; /* Add relative positioning for absolute children */
   min-width: 600px; /* Minimum width to prevent cramping */
+  transition: all var(--transition-duration);
 }
 
 .timeline-navigation {
@@ -129,40 +387,45 @@
   justify-content: center;
   gap: 10px;
   padding: 10px;
-  border-bottom: 1px solid #eee;
-  background-color: #f8f9fa;
+  border-bottom: 1px solid var(--border-primary);
+  background-color: var(--bg-primary);
   flex-wrap: wrap;
+  transition: all var(--transition-duration);
 }
 
 .nav-button, .back-button {
   padding: 6px 12px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-primary);
   border-radius: 4px;
-  background-color: #fff;
-  color: #333;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
   cursor: pointer;
   font-size: 0.9rem;
   white-space: nowrap;
+  transition: all var(--transition-duration);
 }
 
 .nav-button:hover:not(:disabled), .back-button:hover {
-  background-color: #f0f0f0;
-  border-color: #999;
+  background-color: var(--accent-primary);
+  color: var(--bg-primary);
+  border-color: var(--accent-secondary);
 }
 
 .nav-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  color: var(--text-secondary);
+  border-color: var(--text-secondary);
 }
 
 .back-button {
-  background-color: #1976d2;
-  color: white;
-  border-color: #1976d2;
+  background-color: var(--accent-primary);
+  color: var(--bg-primary);
+  border-color: var(--accent-primary);
 }
 
 .back-button:hover {
-  background-color: #125ea8;
+  background-color: var(--accent-secondary);
 }
 
 .current-month {
@@ -170,17 +433,20 @@
   font-size: 1.1rem;
   min-width: 150px;
   text-align: center;
+  color: var(--accent-primary);
+  transition: color var(--transition-duration);
 }
 
 .timeline-header {
   position: relative;
   height: 24px;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid var(--border-primary);
   font-size: 0.75rem;
-  color: #555;
+  color: var(--text-secondary);
   margin-left: 0;
   width: 100%;
   display: flex;
+  transition: all var(--transition-duration);
 }
 
 .rule-info-spacer {
@@ -197,10 +463,12 @@
   top: 0;
   height: 100%;
   width: 1px;
-  border-left: 1px dashed #bbb;
+  border-left: 1px dashed var(--accent-primary);
   padding-left: 2px;
   white-space: nowrap;
   transform: translateX(-50%);
+  color: var(--text-secondary);
+  transition: all var(--transition-duration);
 }
 
 /* .timeline-marker {
@@ -209,7 +477,7 @@
   height: 100%;
   width: auto;
   min-width: 30px;
-  border-left: 1px dashed #bbb;
+  border-left: 1px dashed var(--text-secondary);
   padding-left: 2px;
   white-space: nowrap;
   transform: translateX(-50%);
@@ -221,20 +489,24 @@
   bottom: 0;
   left: 0;                /* 由行内样式的 left:% 覆盖具体位置 */
   width: 0;               /* 不占宽度，避免线被平移 */
-  border-left: 1px dashed #bbb;
+  border-left: 1px dashed var(--accent-primary);
+  color: var(--text-secondary);
+  transition: all var(--transition-duration);
 }
 
 .timeline-marker.clickable {
   cursor: pointer;
   padding: 2px 4px;
   border-radius: 3px;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--transition-duration);
+  color: var(--text-primary);
 }
 
 .timeline-marker.clickable:hover {
-  background-color: rgba(25, 118, 210, 0.1);
-  border-left-color: #1976d2;
+  background-color: var(--shadow-color);
+  border-left-color: var(--accent-secondary);
   font-weight: bold;
+  color: var(--accent-primary);
 }
 
 .rule-rows {
@@ -258,36 +530,44 @@
   padding: 2px 8px;
   box-sizing: border-box;
   overflow: hidden;
+  color: var(--text-primary);
+  transition: color var(--transition-duration);
 }
 
 .rule-title {
   font-weight: bold;
   margin-bottom: 2px;
+  color: var(--accent-primary);
+  transition: color var(--transition-duration);
 }
 
 .rule-dates {
   font-size: 0.75rem;
   margin-bottom: 1px;
+  color: var(--text-secondary);
+  transition: color var(--transition-duration);
 }
 
 .rule-details {
   font-size: 0.7rem;
-  color: #666;
+  color: var(--text-secondary);
+  transition: color var(--transition-duration);
 }
 
 .rule-bar-container {
   position: relative;
   flex: 1;
   height: 20px;
-  background-color: #f5f5f5;
-  border: 1px solid #ddd;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  transition: all var(--transition-duration);
 }
 
 .rule-bar {
   position: absolute;
   height: 100%;
   border-radius: 2px;
-  transition: opacity 0.2s ease;
+  transition: opacity var(--transition-duration);
 }
 
 .rule-bar.clickable-rule {
@@ -300,25 +580,36 @@
 }
 
 .rule-bar.highlight {
-  box-shadow: 0 0 0 2px #ff4444;
+  box-shadow: 0 0 0 2px var(--accent-primary);
   z-index: 1;
 }
 
 .max-days-shadow {
   position: absolute;
   height: 100%;
-  background: linear-gradient(45deg, 
-    rgba(255, 165, 0, 0.3) 25%, 
-    transparent 25%, 
-    transparent 50%, 
-    rgba(255, 165, 0, 0.3) 50%, 
-    rgba(255, 165, 0, 0.3) 75%, 
-    transparent 75%);
-  background-size: 6px 6px;
-  border-left: 2px solid rgba(255, 140, 0, 0.7);
-  border-right: 2px solid rgba(255, 140, 0, 0.7);
+  background: var(--max-days-shadow-bg);
   pointer-events: none;
   z-index: 1;
+  transition: all var(--transition-duration);
+}
+
+/* Theme-specific styles for max-days-shadow */
+.light-theme .max-days-shadow {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(253, 126, 20, 0.3),
+    rgba(253, 126, 20, 0.3) 4px,
+    rgba(253, 126, 20, 0.6) 4px,
+    rgba(253, 126, 20, 0.6) 6px
+  ); /* Orange diagonal stripes for light mode */
+  border: none;
+}
+
+.dark-theme .max-days-shadow {
+  background: var(--max-days-shadow-bg);
+  background-size: 6px 6px;
+  border-left: 2px solid var(--accent-primary);
+  border-right: 2px solid var(--accent-primary);
 }
 
 .clickable-rule {
@@ -327,7 +618,7 @@
 }
 
 .rule-info.clickable-rule:hover {
-  background-color: rgba(0, 123, 255, 0.1);
+  background-color: rgba(0, 255, 136, 0.1);
   border-radius: 4px;
 }
 
@@ -338,7 +629,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -347,14 +638,16 @@
 }
 
 .xml-popup-modal {
-  background: white;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
   border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 20px var(--shadow-color);
   max-width: 800px;
   max-height: 80vh;
   width: 100%;
   display: flex;
   flex-direction: column;
+  transition: all var(--transition-duration);
 }
 
 .xml-popup-header {
@@ -362,15 +655,17 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 1px solid #e0e0e0;
-  background-color: #f8f9fa;
+  border-bottom: 1px solid var(--border-primary);
+  background-color: var(--bg-primary);
   border-radius: 8px 8px 0 0;
+  transition: all var(--transition-duration);
 }
 
 .xml-popup-header h3 {
   margin: 0;
-  color: #333;
+  color: var(--accent-primary);
   font-size: 1.2rem;
+  transition: color var(--transition-duration);
 }
 
 .xml-popup-actions {
@@ -381,17 +676,17 @@
 
 .copy-button {
   padding: 6px 12px;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--accent-primary);
+  color: var(--bg-primary);
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.9rem;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--transition-duration);
 }
 
 .copy-button:hover {
-  background-color: #0056b3;
+  background-color: var(--accent-secondary);
 }
 
 .close-button {
@@ -399,7 +694,7 @@
   border: none;
   font-size: 24px;
   cursor: pointer;
-  color: #666;
+  color: var(--text-secondary);
   padding: 0;
   width: 30px;
   height: 30px;
@@ -407,12 +702,12 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background-color 0.2s ease;
+  transition: all var(--transition-duration);
 }
 
 .close-button:hover {
-  background-color: #e0e0e0;
-  color: #333;
+  background-color: var(--shadow-color);
+  color: var(--accent-primary);
 }
 
 .xml-popup-content {
@@ -427,16 +722,19 @@
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 12px;
   line-height: 1.4;
-  background-color: #f8f8f8;
+  background-color: var(--bg-primary);
   overflow: auto;
   white-space: pre;
-  color: #333;
+  color: var(--text-primary);
+  transition: all var(--transition-duration);
 }
 
 .xml-content code {
   background: none;
   padding: 0;
   font-family: inherit;
+  color: var(--text-primary);
+  transition: color var(--transition-duration);
 }
 
 .booking-creation-line {
@@ -444,9 +742,10 @@
   top: 24px; /* Start after the timeline header */
   bottom: 10px; /* Account for padding-bottom */
   width: 2px;
-  background-color: #d32f2f;
+  background-color: var(--accent-primary);
   z-index: 10;
   pointer-events: none;
+  transition: background-color var(--transition-duration);
   /* Position will be set dynamically using calc() in the component */
 }
 
@@ -457,7 +756,7 @@
   left: -1px;
   width: 4px;
   height: 100%;
-  background-color: rgba(211, 47, 47, 0.2);
+  background-color: var(--shadow-color);
 }
 
 .booking-creation-label {
@@ -465,28 +764,32 @@
   top: -22px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #d32f2f;
-  color: white;
+  background-color: var(--accent-primary);
+  color: var(--bg-primary);
   padding: 2px 6px;
   border-radius: 3px;
   font-size: 0.65rem;
   font-weight: bold;
   white-space: nowrap;
   pointer-events: auto;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  box-shadow: 0 1px 3px var(--shadow-color);
+  transition: all var(--transition-duration);
 }
 
 .booking-selector {
   margin-top: 30px;
   padding: 15px;
-  background: #fff;
-  border: 1px solid #ddd;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
   border-radius: 4px;
+  transition: all var(--transition-duration);
 }
 
 .booking-selector h2 {
   margin-top: 0;
   margin-bottom: 10px;
+  color: var(--accent-primary);
+  transition: color var(--transition-duration);
 }
 
 .booking-date-input {
@@ -498,6 +801,23 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  color: var(--text-primary);
+  transition: color var(--transition-duration);
+}
+
+.booking-date-input input {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  padding: 4px 8px;
+  transition: all var(--transition-duration);
+}
+
+.booking-date-input input:focus {
+  outline: none;
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 0 2px var(--shadow-color);
 }
 
 .booking-entry {
@@ -514,10 +834,46 @@
   gap: 4px;
   font-size: 0.9rem;
   white-space: nowrap;
+  color: var(--text-primary);
+  transition: color var(--transition-duration);
 }
 
 .booking-entry input {
   min-width: 120px;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  padding: 4px 8px;
+  transition: all var(--transition-duration);
+}
+
+.booking-entry input:focus {
+  outline: none;
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 0 2px var(--shadow-color);
+}
+
+.booking-entry button {
+  background-color: var(--error-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background-color var(--transition-duration);
+}
+
+.booking-entry button:hover:not(:disabled) {
+  background-color: var(--error-color);
+  opacity: 0.8;
+}
+
+.booking-entry button:disabled {
+  background-color: var(--text-secondary);
+  cursor: not-allowed;
+  color: var(--text-tertiary);
+  opacity: 0.6;
 }
 
 .booking-result {
@@ -529,15 +885,18 @@
 }
 
 .allowed {
-  color: #2e7d32;
+  color: var(--success-color);
+  transition: color var(--transition-duration);
 }
 
 .not-allowed {
-  color: #c62828;
+  color: var(--error-color);
+  transition: color var(--transition-duration);
 }
 
 .enter-data {
-  color: #888;
+  color: var(--text-secondary);
+  transition: color var(--transition-duration);
 }
 
 /* Media queries for smaller screens */

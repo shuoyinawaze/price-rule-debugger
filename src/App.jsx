@@ -487,6 +487,13 @@ function APIConfiguration({ onRulesLoaded }) {
   const [season, setSeason] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Generate season options (current year and next few years)
+  const currentYear = new Date().getFullYear();
+  const seasonOptions = [];
+  for (let year = currentYear; year <= currentYear + 1; year++) {
+    seasonOptions.push(year);
+  }
+
   const handleFetchFromAPI = async () => {
     if (!accommodationCode || !season) {
       alert('Please fill in all fields: accommodation code and season');
@@ -530,15 +537,18 @@ function APIConfiguration({ onRulesLoaded }) {
           </label>
           <label>
             Season:
-            <input
-              type="number"
+            <select
               value={season}
               onChange={(e) => setSeason(e.target.value)}
-              placeholder="e.g., 2026"
               className="api-input"
-              min="2025"
-              max="2030"
-            />
+            >
+              <option value="">Select season...</option>
+              {seasonOptions.map(year => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
           </label>
           <button
             onClick={handleFetchFromAPI}
@@ -651,6 +661,16 @@ export default function App() {
   const [bookingEntries, setBookingEntries] = useState([{ startDate: '', length: '' }]);
   const [viewMode, setViewMode] = useState('year'); // 'year' or 'month'
   const [selectedMonth, setSelectedMonth] = useState(0); // 0-11
+  const [isDarkMode, setIsDarkMode] = useState(false); // Default to light mode
+
+  // Apply theme to body
+  useEffect(() => {
+    document.body.className = isDarkMode ? 'dark-theme' : 'light-theme';
+  }, [isDarkMode]);
+
+  const toggleTheme = () => {
+    setIsDarkMode(!isDarkMode);
+  };
 
   // Handle month click to switch to day view
   const handleMonthClick = (month) => {
@@ -750,7 +770,12 @@ export default function App() {
 
   return (
     <div className="container">
-      <h1>Price Rule Debugger</h1>
+      <div className="header-section">
+        <h1>Price Rule Debugger</h1>
+        <button className="theme-toggle" onClick={toggleTheme} title={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}>
+          {isDarkMode ? '☀️' : '🌙'}
+        </button>
+      </div>
       <p>
         Upload your price rule file (XML) or fetch rules from API to visualise how the rules cover the calendar and test
         bookings against them.
