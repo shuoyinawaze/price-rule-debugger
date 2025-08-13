@@ -336,6 +336,44 @@ select.api-input:focus {
   opacity: 0.6;
 }
 
+/* Search History Styles */
+.search-history {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border-primary);
+}
+
+.search-history h4 {
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.history-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.history-button {
+  padding: 4px 8px;
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all var(--transition-duration);
+  white-space: nowrap;
+}
+
+.history-button:hover {
+  background-color: var(--accent-primary);
+  color: var(--bg-primary);
+  border-color: var(--accent-primary);
+}
+
 .year-selector {
   margin: 10px 0;
   display: flex;
