@@ -304,6 +304,23 @@
   z-index: 1;
 }
 
+.max-days-shadow {
+  position: absolute;
+  height: 100%;
+  background: linear-gradient(45deg, 
+    rgba(255, 165, 0, 0.3) 25%, 
+    transparent 25%, 
+    transparent 50%, 
+    rgba(255, 165, 0, 0.3) 50%, 
+    rgba(255, 165, 0, 0.3) 75%, 
+    transparent 75%);
+  background-size: 6px 6px;
+  border-left: 2px solid rgba(255, 140, 0, 0.7);
+  border-right: 2px solid rgba(255, 140, 0, 0.7);
+  pointer-events: none;
+  z-index: 1;
+}
+
 .clickable-rule {
   cursor: pointer;
   transition: background-color 0.2s ease;

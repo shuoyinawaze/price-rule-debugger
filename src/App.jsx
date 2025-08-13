@@ -371,12 +371,64 @@ function Timeline({
         {rules.map((rule) => {
           let ruleStartIdx = differenceInCalendarDays(parseISO(rule.from), start);
           let ruleEndIdx = differenceInCalendarDays(parseISO(rule.to), start);
-          if (ruleEndIdx < 0 || ruleStartIdx > totalDays - 1) return null;
+          
+          // Also check if maxDaysToArrival period intersects with current view
+          let shadowStartIdx = null;
+          let shadowEndIdx = null;
+          if (rule.maxDaysToArrival != null) {
+            const ruleFromDate = parseISO(rule.from);
+            const shadowEnd = new Date(ruleFromDate);
+            shadowEnd.setDate(shadowEnd.getDate() - 1); // End one day before rule starts
+            const shadowStart = new Date(shadowEnd);
+            shadowStart.setDate(shadowStart.getDate() - rule.maxDaysToArrival + 1); // X days before the end
+            
+            shadowStartIdx = differenceInCalendarDays(shadowStart, start);
+            shadowEndIdx = differenceInCalendarDays(shadowEnd, start);
+          }
+          
+          // Show rule if either the rule period OR the maxDaysToArrival period intersects with current view
+          const ruleIntersects = !(ruleEndIdx < 0 || ruleStartIdx > totalDays - 1);
+          const shadowIntersects = shadowStartIdx !== null && shadowEndIdx !== null && 
+                                  !(shadowEndIdx < 0 || shadowStartIdx > totalDays - 1);
+          
+          if (!ruleIntersects && !shadowIntersects) return null;
+          
           ruleStartIdx = Math.max(0, ruleStartIdx);
           ruleEndIdx = Math.min(totalDays - 1, ruleEndIdx);
           const barLeft = (ruleStartIdx / totalDays) * 100;
           const barWidthPercent = ((ruleEndIdx - ruleStartIdx + 1) / totalDays) * 100;
           const highlight = highlightedRuleIds && highlightedRuleIds.includes(rule.id);
+          
+          // Calculate max days to arrival shadow if applicable
+          let shadowOverlay = null;
+          if (rule.maxDaysToArrival != null && shadowIntersects) {
+            // Use the already calculated shadow indices
+            const visibleStartIdx = Math.max(0, shadowStartIdx);
+            const visibleEndIdx = Math.min(totalDays - 1, shadowEndIdx);
+            
+            if (visibleStartIdx <= visibleEndIdx) {
+              const shadowLeft = (visibleStartIdx / totalDays) * 100;
+              const shadowWidth = ((visibleEndIdx - visibleStartIdx + 1) / totalDays) * 100;
+              
+              const ruleFromDate = parseISO(rule.from);
+              const shadowEnd = new Date(ruleFromDate);
+              shadowEnd.setDate(shadowEnd.getDate() - 1);
+              const shadowStart = new Date(shadowEnd);
+              shadowStart.setDate(shadowStart.getDate() - rule.maxDaysToArrival + 1);
+              
+              shadowOverlay = (
+                <div
+                  className="max-days-shadow"
+                  style={{
+                    left: `${shadowLeft}%`,
+                    width: `${shadowWidth}%`,
+                  }}
+                  title={`Booking window (${rule.maxDaysToArrival} days): ${format(shadowStart, 'MMM d, yyyy')} to ${format(shadowEnd, 'MMM d, yyyy')} for rule starting ${format(ruleFromDate, 'MMM d, yyyy')}`}
+                />
+              );
+            }
+          }
+          
           return (
             <div className="rule-row" key={rule.id}>
               <div 
@@ -396,16 +448,19 @@ function Timeline({
                 </div>
               </div>
               <div className="rule-bar-container">
-                <div
-                  className={`rule-bar ${highlight ? 'highlight' : ''} clickable-rule`}
-                  style={{
-                    left: `${barLeft}%`,
-                    width: `${barWidthPercent}%`,
-                    backgroundColor: rule.colour,
-                  }}
-                  title={`Rule ${rule.id} - Click to view XML`}
-                  onClick={() => setSelectedRule(rule)}
-                ></div>
+                {shadowOverlay}
+                {ruleIntersects && (
+                  <div
+                    className={`rule-bar ${highlight ? 'highlight' : ''} clickable-rule`}
+                    style={{
+                      left: `${barLeft}%`,
+                      width: `${barWidthPercent}%`,
+                      backgroundColor: rule.colour,
+                    }}
+                    title={`Rule ${rule.id} - Click to view XML`}
+                    onClick={() => setSelectedRule(rule)}
+                  ></div>
+                )}
               </div>
             </div>
           );
