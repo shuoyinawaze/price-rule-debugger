@@ -289,13 +289,8 @@ function Timeline({
     if (!bookingCreationDate) return null;
     const dayIndex = differenceInCalendarDays(bookingCreationDate, start);
     if (dayIndex < 0 || dayIndex >= totalDays) return null;
-    return (dayIndex / totalDays); // 0~1
+    return (dayIndex / totalDays) * 100; // Return percentage directly
   }, [bookingCreationDate, start, totalDays]);
-
-  const bookingDateLeftPx =
-    bookingDatePosition !== null && barWidth > 0
-      ? infoWidth + bookingDatePosition * barWidth
-      : null;
 
   return (
     <div className="timeline-wrapper">
@@ -348,14 +343,14 @@ function Timeline({
             </div>
           ))}
           {/* 红线，绝对定位 */}
-          {bookingDateLeftPx !== null && (
+          {bookingDatePosition !== null && (
             <div
               className="booking-creation-line"
               style={{
                 position: 'absolute',
                 top: 0,
                 bottom: 0,
-                left: `${bookingDateLeftPx}px`
+                left: `${bookingDatePosition}%`
               }}
               title={`Booking creation date: ${format(bookingCreationDate, 'yyyy-MM-dd')}`}
             >
