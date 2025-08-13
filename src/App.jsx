@@ -497,20 +497,54 @@ function APIConfiguration({ onRulesLoaded, searchHistory, onAddToHistory }) {
 
     setIsLoading(true);
     try {
-      // Payload structure for the API
-      const payload = {
-        salesmarket: 999,
-        season: parseInt(season, 10),
-        showdescriptions: true,
-        sections: 'pricerules'
-      };
+      let allRules = [];
 
-      const rules = await fetchPriceRulesFromAPI(accommodationCode, payload);
-      
-      // Add to search history if successful
-      onAddToHistory({ accommodationCode, season: parseInt(season, 10) });
-      
-      onRulesLoaded(rules);
+      if (season === 'all') {
+        // Fetch both current and next year
+        const currentYear = new Date().getFullYear();
+        const seasons = [currentYear, currentYear + 1];
+        
+        for (const yearSeason of seasons) {
+          const payload = {
+            salesmarket: 999,
+            season: yearSeason,
+            showdescriptions: true,
+            sections: 'pricerules'
+          };
+
+          try {
+            const rules = await fetchPriceRulesFromAPI(accommodationCode, payload);
+            allRules = [...allRules, ...rules];
+          } catch (error) {
+            console.warn(`Failed to fetch rules for season ${yearSeason}:`, error.message);
+            // Continue with other seasons even if one fails
+          }
+        }
+        
+        // Re-assign IDs to ensure they're unique across all rules
+        allRules = allRules.map((rule, index) => ({
+          ...rule,
+          id: index + 1
+        }));
+
+        // Add to search history with 'all' indicator
+        onAddToHistory({ accommodationCode, season: 'all' });
+      } else {
+        // Fetch single season
+        const payload = {
+          salesmarket: 999,
+          season: parseInt(season, 10),
+          showdescriptions: true,
+          sections: 'pricerules'
+        };
+
+        allRules = await fetchPriceRulesFromAPI(accommodationCode, payload);
+        
+        // Add to search history
+        onAddToHistory({ accommodationCode, season: parseInt(season, 10) });
+      }
+
+      onRulesLoaded(allRules);
     } catch (error) {
       console.error('Failed to fetch from API:', error);
       alert(`Failed to fetch price rules from API: ${error.message}`);
@@ -522,7 +556,7 @@ function APIConfiguration({ onRulesLoaded, searchHistory, onAddToHistory }) {
   // Handle clicking on a history item
   const handleHistoryClick = (historyItem) => {
     setAccommodationCode(historyItem.accommodationCode);
-    setSeason(historyItem.season.toString());
+    setSeason(historyItem.season === 'all' ? 'all' : historyItem.season.toString());
   };
 
   return (
@@ -548,6 +582,7 @@ function APIConfiguration({ onRulesLoaded, searchHistory, onAddToHistory }) {
               className="api-input"
             >
               <option value="">Select season...</option>
+              <option value="all">All (Current & Next Year)</option>
               {seasonOptions.map(year => (
                 <option key={year} value={year}>
                   {year}
@@ -574,9 +609,9 @@ function APIConfiguration({ onRulesLoaded, searchHistory, onAddToHistory }) {
                   key={index}
                   onClick={() => handleHistoryClick(item)}
                   className="history-button"
-                  title={`Click to search ${item.accommodationCode} for season ${item.season}`}
+                  title={`Click to search ${item.accommodationCode} for season ${item.season === 'all' ? 'All (Current & Next Year)' : item.season}`}
                 >
-                  {item.accommodationCode} ({item.season})
+                  {item.accommodationCode} ({item.season === 'all' ? 'All' : item.season})
                 </button>
               ))}
             </div>
