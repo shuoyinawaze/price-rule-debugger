@@ -12,7 +12,7 @@ const COLOURS = [
   '#CC79A7', // Magenta
   '#56B4E9', // Sky blue
   '#E69F00', // Orange
-  '#000000'  // Black
+  '#8B4513'  // SaddleBrown (replacing black)
 ];
 
 /**
@@ -98,6 +98,41 @@ async function fetchPriceRulesFromAPI(accommodationCode, payload) {
   
   const xmlText = await response.text();
   return parseXmlRules(xmlText);
+}
+
+/**
+ * Fetch saleability data from API endpoint
+ * @param {string} propertyCode The property code
+ * @returns {Promise<Object>} Saleability data object
+ */
+async function fetchSaleabilityFromAPI(propertyCode) {
+  const saleabilityApiKey = import.meta.env.VITE_SALEABILITY_API_KEY;
+  
+  if (!saleabilityApiKey) {
+    throw new Error('Saleability API key not configured. Please set VITE_SALEABILITY_API_KEY in your .env file.');
+  }
+
+  // Use the proxy endpoint instead of direct API call to avoid CORS issues
+  const response = await fetch(
+    `/saleability/${propertyCode}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-awaze-client': 'price-rule-debugger',
+        'x-awaze-client-env': 'prod',
+        'x-api-key': saleabilityApiKey,
+        'x-apex-expose-novasol-saleability': 'true'
+      }
+    }
+  );
+  
+  if (!response.ok) {
+    throw new Error(`Saleability API request failed: ${response.status} ${response.statusText}`);
+  }
+  
+  const data = await response.json();
+  return data;
 }
 
 /**
@@ -215,7 +250,8 @@ function XMLPopup({ rule, onClose }) {
 
 function Timeline({
   rules, year, highlightedRuleIds, bookingCreationDate,
-  viewMode, selectedMonth, onMonthClick, onNavigateMonth, onBackToYear
+  viewMode, selectedMonth, onMonthClick, onNavigateMonth, onBackToYear,
+  saleabilityData, isDarkMode, ruleYears
 }) {
   const isYearView = viewMode === 'year';
   const [selectedRule, setSelectedRule] = useState(null); // For XML popup
@@ -299,7 +335,7 @@ function Timeline({
         <div className="timeline-navigation">
           <button
             onClick={() => onNavigateMonth(-1)}
-            disabled={selectedMonth === 0}
+            disabled={selectedMonth === 0 && (!ruleYears || year <= ruleYears.min)}
             className="nav-button"
           >
             ← Previous
@@ -309,7 +345,7 @@ function Timeline({
           </span>
           <button
             onClick={() => onNavigateMonth(1)}
-            disabled={selectedMonth === 11}
+            disabled={selectedMonth === 11 && (!ruleYears || year >= ruleYears.max)}
             className="nav-button"
           >
             Next →
@@ -363,6 +399,47 @@ function Timeline({
       </div>
       {/* rule bar rows */}
       <div className="rule-rows">
+        {/* Availability overlay */}
+        {saleabilityData && (
+          <div className="availability-overlay-row">
+            <div className="rule-info">
+              <div className="rule-title">Saleability From APEX</div>
+              <div className="rule-dates">Saleable dates</div>
+              <div className="rule-details">{isDarkMode ? 'White' : 'Black'} = Saleable</div>
+            </div>
+            <div className="rule-bar-container">
+              {/* Render availability blocks */}
+              {Array.from({ length: totalDays }, (_, dayIndex) => {
+                const currentDate = new Date(start);
+                currentDate.setDate(currentDate.getDate() + dayIndex);
+                const dateKey = format(currentDate, 'yyyy-MM-dd');
+                
+                // Check if this date has any availability
+                const hasAvailability = saleabilityData.data?.saleability?.[dateKey] && 
+                                      saleabilityData.data.saleability[dateKey].length > 0;
+                
+                if (hasAvailability) {
+                  const barLeft = (dayIndex / totalDays) * 100;
+                  const barWidth = (1 / totalDays) * 100;
+                  
+                  return (
+                    <div
+                      key={dayIndex}
+                      className="available-day"
+                      style={{
+                        left: `${barLeft}%`,
+                        width: `${barWidth}%`,
+                      }}
+                      title={`${dateKey} - Available`}
+                    />
+                  );
+                }
+                return null;
+              })}
+            </div>
+          </div>
+        )}
+        
         {rules.map((rule) => {
           let ruleStartIdx = differenceInCalendarDays(parseISO(rule.from), start);
           let ruleEndIdx = differenceInCalendarDays(parseISO(rule.to), start);
@@ -477,7 +554,7 @@ function Timeline({
 /**
  * API Configuration component for setting up API endpoint and making requests
  */
-function APIConfiguration({ onRulesLoaded, searchHistory, onAddToHistory }) {
+function APIConfiguration({ onRulesLoaded, searchHistory, onAddToHistory, onSaleabilityLoaded, saleabilityData }) {
   const [accommodationCode, setAccommodationCode] = useState('');
   const [season, setSeason] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -545,6 +622,17 @@ function APIConfiguration({ onRulesLoaded, searchHistory, onAddToHistory }) {
       }
 
       onRulesLoaded(allRules);
+
+      // Automatically fetch saleability data using the same accommodation code
+      try {
+        const saleabilityData = await fetchSaleabilityFromAPI(accommodationCode);
+        onSaleabilityLoaded(saleabilityData);
+      } catch (error) {
+        console.warn('Failed to fetch saleability data:', error.message);
+        // Don't show alert for saleability failure, just warn in console
+        // The price rules were successful, so we continue
+      }
+
     } catch (error) {
       console.error('Failed to fetch from API:', error);
       alert(`Failed to fetch price rules from API: ${error.message}`);
@@ -595,7 +683,7 @@ function APIConfiguration({ onRulesLoaded, searchHistory, onAddToHistory }) {
             disabled={isLoading}
             className="api-fetch-button"
           >
-            {isLoading ? 'Fetching...' : 'Fetch Rules'}
+            {isLoading ? 'Fetching...' : 'Fetch Rules & Availability'}
           </button>
         </div>
         
@@ -722,6 +810,7 @@ export default function App() {
   const [selectedMonth, setSelectedMonth] = useState(0); // 0-11
   const [isDarkMode, setIsDarkMode] = useState(false); // Default to light mode
   const [searchHistory, setSearchHistory] = useState([]); // Search history state
+  const [saleabilityData, setSaleabilityData] = useState(null); // Saleability data state
 
   // Apply theme to body
   useEffect(() => {
@@ -741,8 +830,24 @@ export default function App() {
   // Handle navigation between months in day view
   const navigateMonth = (direction) => {
     const newMonth = selectedMonth + direction;
+    
     if (newMonth >= 0 && newMonth <= 11) {
+      // Normal month navigation within the same year
       setSelectedMonth(newMonth);
+    } else if (newMonth === 12 && direction === 1) {
+      // Moving from December to January of next year
+      const nextYear = year + 1;
+      if (ruleYears && nextYear <= ruleYears.max) {
+        setYear(nextYear);
+        setSelectedMonth(0); // January
+      }
+    } else if (newMonth === -1 && direction === -1) {
+      // Moving from January to December of previous year
+      const prevYear = year - 1;
+      if (ruleYears && prevYear >= ruleYears.min) {
+        setYear(prevYear);
+        setSelectedMonth(11); // December
+      }
     }
   };
 
@@ -833,6 +938,11 @@ export default function App() {
     });
   };
 
+  // Handle saleability data loaded
+  const handleSaleabilityLoaded = (saleabilityData) => {
+    setSaleabilityData(saleabilityData);
+  };
+
   // Determine earliest and latest years covered by rules to provide guidance in the UI
   const ruleYears = useMemo(() => {
     if (!rules || rules.length === 0) return null;
@@ -865,6 +975,8 @@ export default function App() {
         onRulesLoaded={handleRulesLoaded}
         searchHistory={searchHistory}
         onAddToHistory={handleAddToHistory}
+        onSaleabilityLoaded={handleSaleabilityLoaded}
+        saleabilityData={saleabilityData}
       />
       
       {/* File Upload Section */}
@@ -912,6 +1024,9 @@ export default function App() {
             onMonthClick={handleMonthClick}
             onNavigateMonth={navigateMonth}
             onBackToYear={handleBackToYear}
+            saleabilityData={saleabilityData}
+            isDarkMode={isDarkMode}
+            ruleYears={ruleYears}
           />
           <BookingSelector
             bookingDate={bookingDate}

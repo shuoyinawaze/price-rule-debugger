@@ -677,6 +677,30 @@ select.api-input:focus {
   z-index: 1;
 }
 
+.availability-overlay-row {
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+  min-height: 30px;
+  border-bottom: 1px solid var(--border-primary);
+  margin-bottom: 5px;
+}
+
+.available-day {
+  position: absolute;
+  height: 100%;
+  background-color: #000000;
+  opacity: 0.8;
+  pointer-events: none;
+  z-index: 2;
+  transition: all var(--transition-duration);
+}
+
+.dark-theme .available-day {
+  background-color: #ffffff;
+  opacity: 0.9;
+}
+
 .max-days-shadow {
   position: absolute;
   height: 100%;
