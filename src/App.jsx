@@ -876,16 +876,26 @@ export default function App() {
       {rules.length > 0 && (
         <>
           <div className="year-selector">
-            <label>
-              Display year:
-              <input
-                type="number"
-                value={year}
-                min={ruleYears ? ruleYears.min : undefined}
-                max={ruleYears ? ruleYears.max : undefined}
-                onChange={(e) => setYear(parseInt(e.target.value, 10) || new Date().getFullYear())}
-              />
-            </label>
+            <span className="year-label">Display year:</span>
+            <div className="year-navigation">
+              <button 
+                className="year-nav-button"
+                onClick={() => setYear(year - 1)}
+                disabled={ruleYears && year <= ruleYears.min}
+                title="Previous year"
+              >
+                ←
+              </button>
+              <span className="current-year">{year}</span>
+              <button 
+                className="year-nav-button"
+                onClick={() => setYear(year + 1)}
+                disabled={ruleYears && year >= ruleYears.max}
+                title="Next year"
+              >
+                →
+              </button>
+            </div>
             {ruleYears && (
               <span className="year-hint">
                 (Available: {ruleYears.min} – {ruleYears.max})

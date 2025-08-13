@@ -378,11 +378,66 @@ select.api-input:focus {
   margin: 10px 0;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
   font-size: 0.95rem;
   flex-wrap: wrap;
   color: var(--text-primary);
   transition: color var(--transition-duration);
+}
+
+.year-label {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.year-navigation {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.year-nav-button {
+  background-color: var(--accent-primary);
+  color: var(--bg-primary);
+  border: none;
+  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-duration);
+  box-shadow: 0 1px 3px var(--shadow-color);
+}
+
+.year-nav-button:hover:not(:disabled) {
+  background-color: var(--accent-secondary);
+  transform: scale(1.05);
+  box-shadow: 0 2px 6px var(--shadow-color);
+}
+
+.year-nav-button:active {
+  transform: scale(0.95);
+}
+
+.year-nav-button:disabled {
+  background-color: var(--text-secondary);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
+  box-shadow: none;
+}
+
+.current-year {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--accent-primary);
+  min-width: 60px;
+  text-align: center;
 }
 
 .year-selector input[type='number'] {
