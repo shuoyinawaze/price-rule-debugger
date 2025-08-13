@@ -481,7 +481,7 @@ function APIConfiguration({ onRulesLoaded }) {
               onChange={(e) => setSeason(e.target.value)}
               placeholder="e.g., 2026"
               className="api-input"
-              min="2020"
+              min="2025"
               max="2030"
             />
           </label>

@@ -203,7 +203,7 @@
   transform: translateX(-50%);
 }
 
-.timeline-marker {
+/* .timeline-marker {
   position: absolute;
   top: 0;
   height: 100%;
@@ -214,6 +214,14 @@
   white-space: nowrap;
   transform: translateX(-50%);
   font-size: 0.7rem;
+} */
+ .timeline-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;                /* 由行内样式的 left:% 覆盖具体位置 */
+  width: 0;               /* 不占宽度，避免线被平移 */
+  border-left: 1px dashed #bbb;
 }
 
 .timeline-marker.clickable {
