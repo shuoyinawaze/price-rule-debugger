@@ -482,7 +482,7 @@ function Timeline({
 /**
  * API Configuration component for setting up API endpoint and making requests
  */
-function APIConfiguration({ onRulesLoaded }) {
+function APIConfiguration({ onRulesLoaded, searchHistory, onAddToHistory }) {
   const [accommodationCode, setAccommodationCode] = useState('');
   const [season, setSeason] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -511,6 +511,10 @@ function APIConfiguration({ onRulesLoaded }) {
       };
 
       const rules = await fetchPriceRulesFromAPI(accommodationCode, payload);
+      
+      // Add to search history if successful
+      onAddToHistory({ accommodationCode, season: parseInt(season, 10) });
+      
       onRulesLoaded(rules);
     } catch (error) {
       console.error('Failed to fetch from API:', error);
@@ -518,6 +522,12 @@ function APIConfiguration({ onRulesLoaded }) {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Handle clicking on a history item
+  const handleHistoryClick = (historyItem) => {
+    setAccommodationCode(historyItem.accommodationCode);
+    setSeason(historyItem.season.toString());
   };
 
   return (
@@ -558,6 +568,25 @@ function APIConfiguration({ onRulesLoaded }) {
             {isLoading ? 'Fetching...' : 'Fetch Rules'}
           </button>
         </div>
+        
+        {/* Search History */}
+        {searchHistory.length > 0 && (
+          <div className="search-history">
+            <h4>Search History</h4>
+            <div className="history-buttons">
+              {searchHistory.map((item, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleHistoryClick(item)}
+                  className="history-button"
+                  title={`Click to search ${item.accommodationCode} for season ${item.season}`}
+                >
+                  {item.accommodationCode} ({item.season})
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -662,6 +691,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState('year'); // 'year' or 'month'
   const [selectedMonth, setSelectedMonth] = useState(0); // 0-11
   const [isDarkMode, setIsDarkMode] = useState(false); // Default to light mode
+  const [searchHistory, setSearchHistory] = useState([]); // Search history state
 
   // Apply theme to body
   useEffect(() => {
@@ -754,6 +784,25 @@ export default function App() {
     }
   };
 
+  // Handle adding to search history
+  const handleAddToHistory = (searchItem) => {
+    setSearchHistory(prev => {
+      // Check if this combination already exists
+      const exists = prev.some(item => 
+        item.accommodationCode === searchItem.accommodationCode && 
+        item.season === searchItem.season
+      );
+      
+      if (exists) {
+        return prev; // Don't add duplicates
+      }
+      
+      // Add new item to the end and limit to last 5 searches (keep only the 5 most recent)
+      const newHistory = [...prev, searchItem];
+      return newHistory.slice(-5); // Keep only the last 5 items
+    });
+  };
+
   // Determine earliest and latest years covered by rules to provide guidance in the UI
   const ruleYears = useMemo(() => {
     if (!rules || rules.length === 0) return null;
@@ -782,7 +831,11 @@ export default function App() {
       </p>
       
       {/* API Configuration Section */}
-      <APIConfiguration onRulesLoaded={handleRulesLoaded} />
+      <APIConfiguration 
+        onRulesLoaded={handleRulesLoaded}
+        searchHistory={searchHistory}
+        onAddToHistory={handleAddToHistory}
+      />
       
       {/* File Upload Section */}
       <div className="upload-section">
