@@ -1153,9 +1153,6 @@ export default function App() {
         <input type="file" accept=".xml" onChange={handleFileChange} />
       </div>
       
-      {/* Checkout Tester - Available immediately */}
-      <CheckoutTester />
-      
       {rules.length > 0 && (
         <>
           <div className="year-selector">
@@ -1208,6 +1205,9 @@ export default function App() {
           />
         </>
       )}
+      
+      {/* Checkout Tester - At the bottom of the page */}
+      <CheckoutTester />
     </div>
   );
 }

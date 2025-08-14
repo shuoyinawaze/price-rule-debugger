@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import fs from 'fs';
 
 // Load environment variables
 dotenv.config();
@@ -72,8 +71,6 @@ app.get('/api/pdp/:propertyCode', async (req, res) => {
     }
 
     const htmlData = await response.text();
-    // save to a file for debugging
-    fs.writeFileSync(`checkout-${propertyCode}.html`, htmlData, 'utf8');
     // Check if the error message exists in the HTML
     const hasError = !htmlData.includes('quoteResponse');
     
