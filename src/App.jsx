@@ -761,12 +761,26 @@ function CheckoutTester() {
       return;
     }
 
+    // Validate length of stay is a positive number
+    const lengthOfStayNumber = parseInt(trimmedLengthOfStay, 10);
+    if (isNaN(lengthOfStayNumber) || lengthOfStayNumber <= 0) {
+      alert('Length of stay must be a positive number');
+      return;
+    }
+
+    // Validate start date is a valid date
+    const startDateObj = new Date(trimmedStartDate);
+    if (isNaN(startDateObj.getTime())) {
+      alert('Please enter a valid start date');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     setResult(null);
 
     try {
-      const result = await testCheckoutAvailability(trimmedPropertyCode, trimmedStartDate, parseInt(trimmedLengthOfStay, 10));
+      const result = await testCheckoutAvailability(trimmedPropertyCode, trimmedStartDate, lengthOfStayNumber);
       setResult(result);
     } catch (error) {
       console.error('Failed to test checkout:', error);
@@ -812,8 +826,15 @@ function CheckoutTester() {
             <input
               type="number"
               min="1"
+              max="365"
               value={lengthOfStay}
-              onChange={(e) => setLengthOfStay(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                // Only allow positive numbers
+                if (value === '' || (parseInt(value, 10) > 0 && parseInt(value, 10) <= 365)) {
+                  setLengthOfStay(value);
+                }
+              }}
               placeholder="7"
               className="checkout-input"
             />
@@ -855,10 +876,28 @@ function CheckoutTester() {
               <p><strong>Check-in:</strong> {startDate}</p>
               <p><strong>Nights:</strong> {lengthOfStay}</p>
               <p><strong>Check-out:</strong> {(() => {
-                const checkIn = new Date(startDate);
-                const checkOut = new Date(checkIn);
-                checkOut.setDate(checkIn.getDate() + parseInt(lengthOfStay, 10));
-                return checkOut.toISOString().split('T')[0];
+                try {
+                  const checkIn = new Date(startDate);
+                  const nights = parseInt(lengthOfStay, 10);
+                  
+                  // Validate that we have valid numbers
+                  if (isNaN(nights) || nights <= 0) {
+                    return 'Invalid length of stay';
+                  }
+                  
+                  const checkOut = new Date(checkIn);
+                  checkOut.setDate(checkIn.getDate() + nights);
+                  
+                  // Validate that the result is a valid date
+                  if (isNaN(checkOut.getTime())) {
+                    return 'Invalid date';
+                  }
+                  
+                  return checkOut.toISOString().split('T')[0];
+                } catch (error) {
+                  console.error('Error calculating checkout date:', error);
+                  return 'Error calculating date';
+                }
               })()}</p>
             </div>
           </div>
