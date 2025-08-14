@@ -11,37 +11,11 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
+      // Proxy our custom API routes to Express server
       '/api': {
-        target: 'http://internalapi.novasol.com',
+        target: 'http://localhost:3001',
         changeOrigin: true,
         secure: false,
-        configure: (proxy, _options) => {
-          proxy.on('error', (err, _req, _res) => {
-            console.log('proxy error', err);
-          });
-          proxy.on('proxyReq', (proxyReq, req, _res) => {
-            console.log('Sending Request to the Target:', req.method, req.url);
-          });
-          proxy.on('proxyRes', (proxyRes, req, _res) => {
-            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
-          });
-        },
-      },
-      '/saleability': {
-        target: 'https://saleability-api.apex.awaze.com',
-        changeOrigin: true,
-        secure: true,
-        configure: (proxy, _options) => {
-          proxy.on('error', (err, _req, _res) => {
-            console.log('saleability proxy error', err);
-          });
-          proxy.on('proxyReq', (proxyReq, req, _res) => {
-            console.log('Sending Saleability Request to the Target:', req.method, req.url);
-          });
-          proxy.on('proxyRes', (proxyRes, req, _res) => {
-            console.log('Received Saleability Response from the Target:', proxyRes.statusCode, req.url);
-          });
-        },
       }
     }
   }

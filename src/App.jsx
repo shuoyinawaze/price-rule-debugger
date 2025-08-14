@@ -81,47 +81,23 @@ async function fetchPriceRulesFromAPI(accommodationCode, payload) {
     throw new Error('API key not configured. Please set VITE_API_KEY in your .env file.');
   }
 
-  // In development, use Vite proxy. In production, use Vercel API routes
-  const isDevelopment = import.meta.env.DEV;
+  // Always use our Express API route (works in both dev and production)
+  const response = await fetch(
+    `/api/price-rules/${accommodationCode}?season=${payload.season}&salesmarket=${payload.salesmarket || 999}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+  );
   
-  if (isDevelopment) {
-    // Use Vite proxy for development
-    const response = await fetch(
-      `/api/products/${accommodationCode}?salesmarket=999&season=${payload.season}&showdescriptions=true&sections=pricerules`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Key': apiKey
-        }
-      }
-    );
-    
-    if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
-    }
-    
-    const xmlText = await response.text();
-    return parseXmlRules(xmlText);
-  } else {
-    // Use Vercel API route for production
-    const response = await fetch(
-      `/api/price-rules/${accommodationCode}?season=${payload.season}&salesmarket=${payload.salesmarket || 999}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-    
-    if (!response.ok) {
-      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
-    }
-    
-    const xmlText = await response.text();
-    return parseXmlRules(xmlText);
+  if (!response.ok) {
+    throw new Error(`API request failed: ${response.status} ${response.statusText}`);
   }
+  
+  const xmlText = await response.text();
+  return parseXmlRules(xmlText);
 }
 
 /**
@@ -136,50 +112,50 @@ async function fetchSaleabilityFromAPI(propertyCode) {
     throw new Error('Saleability API key not configured. Please set VITE_SALEABILITY_API_KEY in your .env file.');
   }
 
-  // In development, use Vite proxy. In production, use Vercel API routes
-  const isDevelopment = import.meta.env.DEV;
+  // Always use our Express API route (works in both dev and production)
+  const response = await fetch(
+    `/api/saleability/${propertyCode}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+  );
   
-  if (isDevelopment) {
-    // Use Vite proxy for development
-    const response = await fetch(
-      `/saleability/${propertyCode}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-awaze-client': 'price-rule-debugger',
-          'x-awaze-client-env': 'prod',
-          'x-api-key': saleabilityApiKey,
-          'x-apex-expose-novasol-saleability': 'true'
-        }
-      }
-    );
-    
-    if (!response.ok) {
-      throw new Error(`Saleability API request failed: ${response.status} ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    return data;
-  } else {
-    // Use Vercel API route for production
-    const response = await fetch(
-      `/api/saleability/${propertyCode}`,
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-    
-    if (!response.ok) {
-      throw new Error(`Saleability API request failed: ${response.status} ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    return data;
+  if (!response.ok) {
+    throw new Error(`Saleability API request failed: ${response.status} ${response.statusText}`);
   }
+  
+  const data = await response.json();
+  return data;
+}
+
+/**
+ * Test checkout availability for a specific booking
+ * @param {string} propertyCode The property code
+ * @param {string} startDate The start date (YYYY-MM-DD)
+ * @param {number} lengthOfStay The length of stay in nights
+ * @returns {Promise<Object>} Checkout availability result
+ */
+async function testCheckoutAvailability(propertyCode, startDate, lengthOfStay) {
+  // Always use the API route (works in both dev and production)
+  const response = await fetch(
+    `/api/pdp/${propertyCode}?startDate=${startDate}&lengthOfStay=${lengthOfStay}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+  );
+  
+  if (!response.ok) {
+    throw new Error(`Checkout API request failed: ${response.status} ${response.statusText}`);
+  }
+  
+  const data = await response.json();
+  return data;
 }
 
 /**
@@ -758,6 +734,151 @@ function APIConfiguration({ onRulesLoaded, searchHistory, onAddToHistory, onSale
 }
 
 /**
+ * CheckoutTester allows users to test checkout availability for specific bookings
+ */
+function CheckoutTester() {
+  const [propertyCode, setPropertyCode] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [lengthOfStay, setLengthOfStay] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+
+  const handleTestCheckout = async () => {
+    // Trim values and check more robustly
+    const trimmedPropertyCode = propertyCode.trim();
+    const trimmedStartDate = startDate.trim();
+    const trimmedLengthOfStay = lengthOfStay.trim();
+    
+    console.log('Form values:', { 
+      propertyCode: `"${trimmedPropertyCode}"`, 
+      startDate: `"${trimmedStartDate}"`, 
+      lengthOfStay: `"${trimmedLengthOfStay}"` 
+    });
+    
+    if (!trimmedPropertyCode || !trimmedStartDate || !trimmedLengthOfStay) {
+      alert('Please fill in all fields: property code, start date, and length of stay');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setResult(null);
+
+    try {
+      const result = await testCheckoutAvailability(trimmedPropertyCode, trimmedStartDate, parseInt(trimmedLengthOfStay, 10));
+      setResult(result);
+    } catch (error) {
+      console.error('Failed to test checkout:', error);
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleClearResults = () => {
+    setResult(null);
+    setError(null);
+  };
+
+  return (
+    <div className="checkout-tester">
+      <h3>Test Checkout Availability</h3>
+      <p>Test if a specific booking can proceed to checkout without errors.</p>
+      
+      <div className="checkout-form">
+        <div className="checkout-form-row">
+          <label>
+            Property Code:
+            <input
+              type="text"
+              value={propertyCode}
+              onChange={(e) => setPropertyCode(e.target.value)}
+              placeholder="e.g., FRA278"
+              className="checkout-input"
+            />
+          </label>
+          <label>
+            Start Date:
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="checkout-input"
+            />
+          </label>
+          <label>
+            Length of Stay (nights):
+            <input
+              type="number"
+              min="1"
+              value={lengthOfStay}
+              onChange={(e) => setLengthOfStay(e.target.value)}
+              placeholder="7"
+              className="checkout-input"
+            />
+          </label>
+          <button
+            onClick={handleTestCheckout}
+            disabled={isLoading}
+            className="checkout-test-button"
+          >
+            {isLoading ? 'Testing...' : 'Test Checkout'}
+          </button>
+          {(result || error) && (
+            <button
+              onClick={handleClearResults}
+              className="checkout-clear-button"
+            >
+              Clear Results
+            </button>
+          )}
+        </div>
+        
+        {/* Results Display */}
+        {result && (
+          <div className={`checkout-result ${result.success ? 'success' : 'error'}`}>
+            <h4>Checkout Test Result:</h4>
+            {result.success ? (
+              <div className="success-message">
+                <span className="status-icon">✅</span>
+                <span>Booking is available - checkout would proceed normally</span>
+              </div>
+            ) : (
+              <div className="error-message">
+                <span className="status-icon">❌</span>
+                <span>Booking has issues - checkout would show error page</span>
+              </div>
+            )}
+            <div className="test-details">
+              <p><strong>Property:</strong> {propertyCode}</p>
+              <p><strong>Check-in:</strong> {startDate}</p>
+              <p><strong>Nights:</strong> {lengthOfStay}</p>
+              <p><strong>Check-out:</strong> {(() => {
+                const checkIn = new Date(startDate);
+                const checkOut = new Date(checkIn);
+                checkOut.setDate(checkIn.getDate() + parseInt(lengthOfStay, 10));
+                return checkOut.toISOString().split('T')[0];
+              })()}</p>
+            </div>
+          </div>
+        )}
+        
+        {error && (
+          <div className="checkout-result error">
+            <h4>Error:</h4>
+            <div className="error-message">
+              <span className="status-icon">⚠️</span>
+              <span>{error}</span>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
  * BookingSelector allows users to test arbitrary bookings against the
  * uploaded rules. Users can dynamically add or remove test cases
  * consisting of a start date and a length of stay. Results for each
@@ -1031,6 +1152,9 @@ export default function App() {
         <h3>Or upload XML file</h3>
         <input type="file" accept=".xml" onChange={handleFileChange} />
       </div>
+      
+      {/* Checkout Tester - Available immediately */}
+      <CheckoutTester />
       
       {rules.length > 0 && (
         <>
