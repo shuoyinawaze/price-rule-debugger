@@ -81,23 +81,47 @@ async function fetchPriceRulesFromAPI(accommodationCode, payload) {
     throw new Error('API key not configured. Please set VITE_API_KEY in your .env file.');
   }
 
-  // Use the proxy endpoint instead of direct API call to avoid CORS issues
-  const response = await fetch(
-    `/api/products/${accommodationCode}?salesmarket=999&season=${payload.season}&showdescriptions=true&sections=pricerules`,
-    {
-    method: 'GET', // Changed to GET since query parameters are in URL
-    headers: {
-      'Content-Type': 'application/json',
-      'Key': apiKey
+  // In development, use Vite proxy. In production, use Vercel API routes
+  const isDevelopment = import.meta.env.DEV;
+  
+  if (isDevelopment) {
+    // Use Vite proxy for development
+    const response = await fetch(
+      `/api/products/${accommodationCode}?salesmarket=999&season=${payload.season}&showdescriptions=true&sections=pricerules`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Key': apiKey
+        }
+      }
+    );
+    
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
     }
-  });
-  
-  if (!response.ok) {
-    throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    
+    const xmlText = await response.text();
+    return parseXmlRules(xmlText);
+  } else {
+    // Use Vercel API route for production
+    const response = await fetch(
+      `/api/price-rules/${accommodationCode}?season=${payload.season}&salesmarket=${payload.salesmarket || 999}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+    }
+    
+    const xmlText = await response.text();
+    return parseXmlRules(xmlText);
   }
-  
-  const xmlText = await response.text();
-  return parseXmlRules(xmlText);
 }
 
 /**
@@ -112,27 +136,50 @@ async function fetchSaleabilityFromAPI(propertyCode) {
     throw new Error('Saleability API key not configured. Please set VITE_SALEABILITY_API_KEY in your .env file.');
   }
 
-  // Use the proxy endpoint instead of direct API call to avoid CORS issues
-  const response = await fetch(
-    `/saleability/${propertyCode}`,
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-awaze-client': 'price-rule-debugger',
-        'x-awaze-client-env': 'prod',
-        'x-api-key': saleabilityApiKey,
-        'x-apex-expose-novasol-saleability': 'true'
+  // In development, use Vite proxy. In production, use Vercel API routes
+  const isDevelopment = import.meta.env.DEV;
+  
+  if (isDevelopment) {
+    // Use Vite proxy for development
+    const response = await fetch(
+      `/saleability/${propertyCode}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-awaze-client': 'price-rule-debugger',
+          'x-awaze-client-env': 'prod',
+          'x-api-key': saleabilityApiKey,
+          'x-apex-expose-novasol-saleability': 'true'
+        }
       }
+    );
+    
+    if (!response.ok) {
+      throw new Error(`Saleability API request failed: ${response.status} ${response.statusText}`);
     }
-  );
-  
-  if (!response.ok) {
-    throw new Error(`Saleability API request failed: ${response.status} ${response.statusText}`);
+    
+    const data = await response.json();
+    return data;
+  } else {
+    // Use Vercel API route for production
+    const response = await fetch(
+      `/api/saleability/${propertyCode}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    if (!response.ok) {
+      throw new Error(`Saleability API request failed: ${response.status} ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return data;
   }
-  
-  const data = await response.json();
-  return data;
 }
 
 /**

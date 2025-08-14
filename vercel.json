@@ -1,0 +1,11 @@
+{
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "VITE_API_KEY": "@vite_api_key",
+    "VITE_SALEABILITY_API_KEY": "@vite_saleability_api_key"
+  }
+}
