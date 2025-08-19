@@ -81,9 +81,9 @@ async function fetchPriceRulesFromAPI(accommodationCode, payload) {
     throw new Error('API key not configured. Please set VITE_API_KEY in your .env file.');
   }
 
-  // Always use our Express API route (works in both dev and production)
+  // Use your Express API route (running on port 3001)
   const response = await fetch(
-    `/api/price-rules/${accommodationCode}?season=${payload.season}&salesmarket=${payload.salesmarket || 999}`,
+    `http://localhost:3001/api/price-rules/${accommodationCode}?season=${payload.season}&salesmarket=${payload.salesmarket || 999}`,
     {
       method: 'GET',
       headers: {
@@ -112,9 +112,9 @@ async function fetchSaleabilityFromAPI(propertyCode) {
     throw new Error('Saleability API key not configured. Please set VITE_SALEABILITY_API_KEY in your .env file.');
   }
 
-  // Always use our Express API route (works in both dev and production)
+  // Use your Express API route (running on port 3001)
   const response = await fetch(
-    `/api/saleability/${propertyCode}`,
+    `http://localhost:3001/api/saleability/${propertyCode}`,
     {
       method: 'GET',
       headers: {
@@ -139,9 +139,9 @@ async function fetchSaleabilityFromAPI(propertyCode) {
  * @returns {Promise<Object>} Checkout availability result
  */
 async function testCheckoutAvailability(propertyCode, startDate, lengthOfStay) {
-  // Always use the API route (works in both dev and production)
+  // Use your Express API route (running on port 3001)
   const response = await fetch(
-    `/api/pdp/${propertyCode}?startDate=${startDate}&lengthOfStay=${lengthOfStay}`,
+    `http://localhost:3001/api/pdp/${propertyCode}?startDate=${startDate}&lengthOfStay=${lengthOfStay}`,
     {
       method: 'GET',
       headers: {
