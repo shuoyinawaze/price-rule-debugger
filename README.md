@@ -11,8 +11,8 @@ A tool for visualizing and testing price rules for accommodation bookings.
 
 2. Edit the `.env` file and add your API keys:
    ```bash
-   VITE_API_KEY=your_price_rules_api_key_here
-   VITE_SALEABILITY_API_KEY=your_saleability_api_key_here
+   API_KEY=your_price_rules_api_key_here
+   SALEABILITY_API_KEY=your_saleability_api_key_here
    ```
 
 3. Install dependencies:

@@ -7,13 +7,8 @@ import { parseXmlRules } from '../utils/ruleUtils.js';
  * @returns {Promise<Array>} Array of rule objects
  */
 export async function fetchPriceRulesFromAPI(accommodationCode, payload) {
-  const apiKey = import.meta.env.VITE_API_KEY;
-  
-  if (!apiKey) {
-    throw new Error('API key not configured. Please set VITE_API_KEY in your .env file.');
-  }
-
   // Use your Express API route (running on port 3001)
+  // The Express server handles the API key authentication
   const response = await fetch(
     `http://localhost:3001/api/price-rules/${accommodationCode}?season=${payload.season}&salesmarket=${payload.salesmarket || 999}`,
     {
@@ -38,13 +33,8 @@ export async function fetchPriceRulesFromAPI(accommodationCode, payload) {
  * @returns {Promise<Object>} Saleability data object
  */
 export async function fetchSaleabilityFromAPI(propertyCode) {
-  const saleabilityApiKey = import.meta.env.VITE_SALEABILITY_API_KEY;
-  
-  if (!saleabilityApiKey) {
-    throw new Error('Saleability API key not configured. Please set VITE_SALEABILITY_API_KEY in your .env file.');
-  }
-
   // Use your Express API route (running on port 3001)
+  // The Express server handles the API key authentication
   const response = await fetch(
     `http://localhost:3001/api/saleability/${propertyCode}`,
     {

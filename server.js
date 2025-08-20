@@ -85,7 +85,7 @@ app.get('/api/pdp/:propertyCode', async (req, res) => {
 // Saleability endpoint
 app.get('/api/saleability/:propertyCode', async (req, res) => {
   const { propertyCode } = req.params;
-  const apiKey = process.env.VITE_SALEABILITY_API_KEY;
+  const apiKey = process.env.SALEABILITY_API_KEY;
   
   if (!apiKey) {
     return res.status(500).json({ error: 'Saleability API key not configured' });
@@ -122,7 +122,7 @@ app.get('/api/saleability/:propertyCode', async (req, res) => {
 app.get('/api/price-rules/:accommodationCode', async (req, res) => {
   const { accommodationCode } = req.params;
   const { season, salesmarket = 999 } = req.query;
-  const apiKey = process.env.VITE_API_KEY;
+  const apiKey = process.env.API_KEY;
   
   if (!apiKey) {
     return res.status(500).json({ error: 'API key not configured' });
