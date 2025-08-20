@@ -7,6 +7,8 @@
     "dev": "concurrently \"npm run dev:vite\" \"npm run dev:api\"",
     "dev:vite": "vite",
     "dev:api": "node server.js",
+    "dev:clean": "npm run clean && npm run dev",
+    "clean": "rm -rf node_modules/.vite dist",
     "build": "vite build",
     "preview": "vite preview"
   },

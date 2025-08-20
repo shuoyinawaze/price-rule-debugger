@@ -18,5 +18,13 @@ export default defineConfig({
         secure: false,
       }
     }
+  },
+  optimizeDeps: {
+    // Force re-optimize dependencies on restart in development
+    force: process.env.NODE_ENV === 'development',
+  },
+  build: {
+    // Clear output directory before build
+    emptyOutDir: true,
   }
 });
